@@ -371,10 +371,10 @@ def main(ww,hh):
     win.bind("<ButtonRelease-1>",butup)
     win.pack()
     win.focus_set()
-    fps = Text(Point(1900,1060),'');fps.draw(win)
+    fps = Text(Point(1900,1040),'');fps.draw(win)
     ammo = Text(Point(1820,1020),'');ammo.draw(win);ammo.setSize(15);ammo.setFace('helvetica')
     score_text = Text(Point(100,1020),'');score_text.draw(win);score_text.setSize(20);score_text.setFace('helvetica')
-    gunname_text = Text(Point(500,1020),'Starter Gun');gunname_text.draw(win);gunname_text.setSize(20);gunname_text.setFace('helvetica')
+    gunname_text = Text(Point(800,1020),'Starter Gun');gunname_text.draw(win);gunname_text.setSize(20);gunname_text.setFace('helvetica')
     player = Rectangle(Point(985,120),Point(1015,150));player.setWidth(0);player.setFill('Blue');player.draw(win)
     blocks = [Rectangle(Point(-10,-10),Point(20,1080)),Rectangle(Point(1910,-10),Point(1930,1090)),
               Rectangle(Point(-10,1060),Point(1940,1100)),Rectangle(Point(400,10),Point(450,60)),
@@ -507,9 +507,7 @@ def main(ww,hh):
                 print('lol')
         fps.setText(str(round(1/(time()-ti),3)))
         ti = time()
-print('l')
 ww,hh=setup.setup()
-print('l')
 main(ww,hh)
 
 
