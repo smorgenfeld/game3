@@ -17,6 +17,6 @@ def setup():
         gin.destroy()
     b = Button(gin, text='Continue',command=cont)
     b.pack(pady=15)
-    gin.mainloop()
+    gin.wait_window()
     print('yay')
     return ww,hh
