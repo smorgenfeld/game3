@@ -2,28 +2,10 @@
 
 from graphics import *
 from time import *
-import tkinter
+import tkinter, random, math, setup
 import math
 import random
-def setup():
-    global var1
-    gin = tk.Tk()
-    gin.geometry('200x200')
-    lst1 = ['960x540','1920x1080','1600x900','1280x720']
-    var1 = tk.StringVar(gin)
-    var1.set(lst1[0])
-    drop = tk.OptionMenu(gin,var1,*lst1)
-    drop.config(width=20)
-    drop.grid()
-    drop.pack(padx=15,pady=15)
-    def cont():
-        ww = int((var1.get())[:((var1.get()).find('x'))])
-        hh = int((var1.get())[((var1.get()).find('x'))+1:])
-        gin.destroy()
-        main(ww,hh)
-    b = tk.Button(gin, text='Continue',command=cont)
-    b.pack(pady=15)
-    
+
 def overlap(r1,r2,x,y):
     global falling,curx1,curx2
     r1cent = r1.getCenter()
@@ -525,10 +507,9 @@ def main(ww,hh):
                 print('lol')
         fps.setText(str(round(1/(time()-ti),3)))
         ti = time()
-
-#setup()
-main(960,540)
-
-#exit()
+print('l')
+ww,hh=setup.setup()
+print('l')
+main(ww,hh)
 
 
