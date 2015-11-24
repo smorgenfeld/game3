@@ -88,10 +88,8 @@ class bullet:
             self.my *= -1
             self.mx *= -1
         x += self.mx/reco
-        if falling:
+        if falling and self.my < y1:
             y += self.my/reco
-        else:
-            y = 0
             
     def mve(self):
         if self.bar == None:
@@ -174,7 +172,7 @@ class slime:
                     bult[i].close()
                     self.close()
                     score += 1
-                    if random.randint(0,0) == 0:
+                    if random.randint(0,00) == 0:
                         drop.append(gun(self.x,self.y))
                 i += 1
                 
@@ -267,7 +265,7 @@ class gun:
             self.v = 40
             self.rc = -50
             self.br = 2
-            self.ac = 100
+            self.ac = 50
             self.c = 40
             self.rr = 80
         elif self.type == 'Pistol':
@@ -275,7 +273,7 @@ class gun:
             self.v = 40
             self.rc = -20
             self.br = 10
-            self.ac = 30
+            self.ac = 100
             self.c = 10
             self.rr = 20
         elif self.type == 'Assault Rifle':
@@ -283,7 +281,7 @@ class gun:
             self.v = 50
             self.rc = -30
             self.br = 4
-            self.ac = 50
+            self.ac = 80
             self.c = 25
             self.rr = 40
         elif self.type == 'Sniper Rifle':
@@ -291,7 +289,7 @@ class gun:
             self.v = 100
             self.rc = -200
             self.br = 20
-            self.ac = 5
+            self.ac = 200
             self.c = 5
             self.rr = 80
         a1 = self.getatts(a1)
@@ -304,11 +302,10 @@ class gun:
                 self.name = a1 + ' ' + a2 + ' ' + self.type
         else:
             self.name = a1 + ' ' + self.type
-        self.rect = Rectangle(Point(x,y),Point(x+60,y+60))
-        self.rect.setFill('yellow');self.rect.draw(win)
-        p = tk.PhotoImage(file='crate.gif')
-        self.crate = tk.Label(win,image=p)
-        self.crate.pack()
+        self.rect = Rectangle(Point(x,y-30),Point(x+60,y+30))
+        self.rect.draw(win)
+        self.crate = Image(Point(x+30,y),('resources/' + str(win_height) + '/crate.gif'))
+        self.crate.draw(win)
         #print(self.name,self.d,self.v,self.rc,self.br,self.ac,self.c,self.rr)
     def trans(self):
         global magmax,rltg,rltb,velo,acc,recoil,name
@@ -339,7 +336,7 @@ class gun:
                 self.v = int(1.5 * self.v)
                 return gv[random.randint(0,len(gv)-1)]
             elif a == gbr:
-                self.br = int(.5 * self.br)
+                self.br = int(.5 * self.v)
                 return gbr[random.randint(0,len(gbr)-1)]
             elif a == grr:
                 self.rr = int(.5 * self.rr)
@@ -348,7 +345,7 @@ class gun:
                 self.c = int(1.5 * self.c)
                 return gc[random.randint(0,len(gc)-1)]
             elif a == ga:
-                self.ac = int(.5 * self.ac)
+                self.ac = int(1.5 * self.ac)
                 return ga[random.randint(0,len(ga)-1)]
             elif a == gr:
                 self.rc = int(.5 * self.rc)
@@ -360,7 +357,7 @@ class gun:
                 self.v = int(.5 * self.v)
                 return bv[random.randint(0,len(bv)-1)]
             elif a == bbr:
-                self.br = int(1.5 * self.br)
+                self.br = int(1.5 * self.v)
                 return bbr[random.randint(0,len(bbr)-1)]
             elif a == brr:
                 self.rr = int(1.5 * self.rr)
@@ -369,7 +366,7 @@ class gun:
                 self.c = int(.5 * self.c)
                 return bc[random.randint(0,len(bc)-1)]
             elif a == ba:
-                self.ac = int(1.5 * self.ac)
+                self.ac = int(.5 * self.ac)
                 return ba[random.randint(0,len(ba)-1)]
             elif a == br:
                 self.rc = int(1.5 * self.rc)
@@ -382,7 +379,8 @@ class gun:
     
 def main(ww,hh):
     global up, key, falling,curx1,curx2,but,tb,nxt,x,y,falling,score,win,drop
-    global magmax,rltg,rltb,velo,acc,recoil,name
+    global magmax,rltg,rltb,velo,acc,recoil,win_height,name
+    win_height = hh
     win = GraphWin('hi',ww,hh)
     win.setCoords(0,0,1920,1080)
     win.bind("<KeyPress>",keydown)
@@ -435,7 +433,7 @@ def main(ww,hh):
                     falling = True
         else:
             moving = False
-        mx =(win.winfo_pointerx()-win.winfo_rootx())*(1900/ww)
+        mx =(win.winfo_pointerx()-win.winfo_rootx())*(1920/ww)
         my = win.winfo_screenheight()-((win.winfo_pointery()-win.winfo_rooty())*(1080/hh))
         #movement
         if moving and right:
@@ -460,6 +458,8 @@ def main(ww,hh):
             if over != False:
                 x,y = over
         #move
+        if py < 10:
+            falling = False
         player.move(x,y)
         #shooting
         if tb >= nxt:
