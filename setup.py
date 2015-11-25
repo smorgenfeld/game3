@@ -18,5 +18,4 @@ def setup():
     b = Button(gin, text='Continue',command=cont)
     b.pack(pady=15)
     gin.wait_window()
-    print('yay')
     return ww,hh
