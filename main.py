@@ -20,7 +20,7 @@ def overlap(r1,r2,x,y,cr8,slime,sh):
         if cr8:
             return True
         elif slime:
-            phealth -= sh//15
+            phealth -= sh//15 + 1
             updatehealth(phealth)
         else:
             if r1x-x >= r2p2x:
@@ -46,8 +46,8 @@ def updatehealth(ph):
     phbar.setWidth(0);phbar.setFill('green');phbar.draw(win)
 
 def gameover():
-    over = Text(Point(960,540),'Game Over');over.setFill('red');over.setFace('helvetica');over.setSize(35);over.draw(win)
-    click = Text(Point(960,450),'Click Anywhere to Continue:');click.setFace('helvetica');click.setSize(20);click.draw(win)
+    over = Text(Point(960,580),'Game Over');over.setFill('red');over.setFace('helvetica');over.setSize(35);over.draw(win)
+    click = Text(Point(960,490),'Click Anywhere to Continue:');click.setFace('helvetica');click.setSize(20);click.draw(win)
     win.getMouse()
     quit()
 
@@ -453,12 +453,12 @@ class gun:
 
     
     
-def main(ww,hh):
+def main(ww,hh,full):
     global up, key, falling,curx1,curx2,but,tb,nxt,x,y,falling,score,win,drop
     global magmax,rltg,rltb,velo,acc,recoil,win_height,name,bhealth,mult
     global lazer,phealth,phbar
     win_height = hh
-    win = GraphWin('hi',ww,hh)
+    win = GraphWin('hi',ww,hh,fullscreen=full)
     win.setCoords(0,0,1920,1080)
     win.bind("<KeyPress>",keydown)
     win.bind("<KeyRelease>",keyup)
@@ -619,7 +619,7 @@ def main(ww,hh):
             mob[i].mvee(px,py,blocks,bult)
             if mob[i].getClosed():
                 mobclosed = False
-            overlap(player,mob[i].getrect(),0,0,False,True,mob[i].getHealth())
+            overlap(player,mob[i].getrect(),x,y,False,True,mob[i].getHealth())
         if mobclosed:
             mob = []
         #drops
@@ -671,7 +671,7 @@ def main(ww,hh):
                 print('lol')
         fps.setText(str(round(1/(time()-ti),3)))
         ti = time()
-ww,hh=setup.setup()
-main(ww,hh)
+ww,hh,full=setup.setup()
+main(ww,hh,full)
 
 

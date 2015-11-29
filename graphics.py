@@ -123,11 +123,12 @@ class GraphWin(tk.Canvas):
     """A GraphWin is a toplevel window for displaying graphics."""
 
     def __init__(self, title="Graphics Window",
-                 width=200, height=200, autoflush=True):
+                 width=200, height=200, autoflush=True,fullscreen=False):
         master = tk.Toplevel(_root)
         master.protocol("WM_DELETE_WINDOW", self.close)
         tk.Canvas.__init__(self, master, width=width, height=height)
         self.master.title(title)
+        self.master.overrideredirect(fullscreen)
         self.pack()
         master.resizable(0,0)
         self.foreground = "black"
