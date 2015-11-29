@@ -6,8 +6,8 @@ import tkinter, random, math, setup
 import math
 import random
 
-def overlap(r1,r2,x,y):
-    global falling,curx1,curx2
+def overlap(r1,r2,x,y,cr8,slime,sh):
+    global falling,curx1,curx2,phealth
     r1cent = r1.getCenter()
     r1x = r1cent.getX()-15 + x
     r1y = r1cent.getY()+15 + y
@@ -17,20 +17,39 @@ def overlap(r1,r2,x,y):
     r2p1y = r2p1.getY()
     r2p2y = r2p2.getY()
     if r1x <= r2p2x and r1x+30 >= r2p1x and r1y >= r2p1y and r1y-30 <= r2p2y:
-        if r1x-x >= r2p2x:
-            x = (r1x-x)-r2p2x
-        if r1x+30-x <= r2p1x:
-            x = (r1x+30-x) - r2p1x
-        if r1y-y <= r2p1y:
-            y = r2p1y-(r1y-y)
-        if r1y-30-y >= r2p2y:
-            y = (r2p2y)-(r1y-30-y)
-            falling = False
-            curx1 = r2p1x
-            curx2 = r2p2x
-        return x,y
+        if cr8:
+            return True
+        elif slime:
+            phealth -= sh//15
+            updatehealth(phealth)
+        else:
+            if r1x-x >= r2p2x:
+                x = (r1x-x)-r2p2x
+            if r1x+30-x <= r2p1x:
+                x = (r1x+30-x) - r2p1x
+            if r1y-y <= r2p1y:
+                y = r2p1y-(r1y-y)
+            if r1y-30-y >= r2p2y:
+                y = (r2p2y)-(r1y-30-y)
+                falling = False
+                curx1 = r2p1x
+                curx2 = r2p2x
+            return x,y
     else:
         return False
+
+def updatehealth(ph):
+    global phbar
+    phbar.undraw()
+    del phbar
+    phbar = Rectangle(Point(960-ph*3,990),Point(960+ph*3,1020))
+    phbar.setWidth(0);phbar.setFill('green');phbar.draw(win)
+
+def gameover():
+    over = Text(Point(960,540),'Game Over');over.setFill('red');over.setFace('helvetica');over.setSize(35);over.draw(win)
+    click = Text(Point(960,450),'Click Anywhere to Continue:');click.setFace('helvetica');click.setSize(20);click.draw(win)
+    win.getMouse()
+    quit()
 
 def keyup(e):
     global up,key
@@ -60,10 +79,14 @@ class bullet:
         self.bar = None
         self.x = x1+10;self.y = y1+10
         self.reckt = Rectangle(Point(self.x-20,self.y-20),Point(self.x,self.y))
-        self.reckt.setWidth(0);self.reckt.setFill('grey');self.reckt.draw(win)
+        self.bul = Image(Point(self.x-10,self.y-10),('resources/' + str(win_height) + '/bul.gif'))
+        self.bul.draw(win)
         top = (y2 - y1)
         bottom = (x2 - x1)
-        m = top/bottom*ac
+        try:
+            m = top/bottom*ac
+        except:
+            m = top/(bottom*ac+0.001)
         self.mx = math.cos(math.atan(m))*v
         self.my = math.tan(math.atan(m)) * self.mx
         if bottom < 0:
@@ -78,7 +101,8 @@ class bullet:
             
     def mve(self):
         if self.bar == None:
-            (self.reckt).move(self.mx,self.my)
+            self.reckt.move(self.mx,self.my)
+            self.bul.move(self.mx,self.my)
             self.x += self.mx;self.y += self.my
 
     def getReckt(self):
@@ -93,6 +117,7 @@ class bullet:
     def close(self):
         if self.bar == None:
             self.reckt.undraw()
+            self.bul.undraw()
             self.bar = 'lol'
             
     def isclosed(self):
@@ -135,15 +160,23 @@ class slime:
         self.bar = None
         self.type = t
 
+    def getHealth(self):
+        if self.bar == None:
+            return self.health
+        else:
+            return 0
+    def getrect(self):
+        return self.rekt
+
     def mvee(self,px,py,blocks,bult):
         global score
-        if self.type == 'green':
-            ms = 15
-        elif self.type == 'red':
-            ms = 25
-        elif self.type == 'blue':
-            ms = 7
         if self.bar == None:
+            if self.type == 'green':
+                ms = 15
+            elif self.type == 'red':
+                ms = 25
+            elif self.type == 'blue':
+                ms = 7
             if not falling and self.surge >= 50:
                 if py+10 > self.y:
                     if px > self.x:
@@ -191,6 +224,8 @@ class slime:
                         if random.randint(0,5) == 5:
                             drop.append(gun(self.x,self.y))
                 i += 1
+                if self.y < -20:
+                    self.close()
                 
     def getClosed(self):
         if self.bar == None:
@@ -238,46 +273,47 @@ class slime:
 class gun:
     
     def __init__(self,x,y):
-        global types, gd,bd,gv,bv,gbr,bbr,grr,brr,gc,bc,ga,ba,gr,br,gl,bl
-        types = ['Minigun','Pistol','Assault Rifle','Sniper Rifle']
-        gd = ['Shiny','Powerful']
-        gv = ['Inflammed','Furious']
+        global types, gd,bd,gv,bv,gbr,bbr,grr,brr,gc,bc,ga,ba,gr,br,gl,bl,gm
+        types = ['Minigun','Pistol','Assault Rifle','Sniper Rifle','Shotgun']
+        gd = ['Shiny','Powerful','Destructive','Legendary']
+        gv = ['Inflammed','Furious','Speedy']
         gbr = ['Automatic','Fast','Greasy']
         grr = ['Intuitive','User-Friendly']
-        gc = ['Overstuffed','Long-Lasting']
-        ga = ['Suppressed','Accurate']
-        gr = ['Stable']
-        bd = ['Cracked']
-        bv = ['Sluggish','Lethargic']
+        gc = ['Overstuffed','Long-Lasting','High-Capacity']
+        ga = ['Suppressed','Accurate','Pin-Point','Scoped','Laser-Scoped']
+        gr = ['Stable','Springy']
+        gm = ['Double Barreled','Dual Barreled']
+        bd = ['Cracked','Weak']
+        bv = ['Sluggish','Lethargic','Soporific']
         bbr = ['Restrictive','Manual']
         brr = ['Corroded','Ackward']
         bc = ['Short','Low-Capacity']
-        ba = ['Inaccurate',"Spray'n Pray"]
-        br = ['Retroactive']
-        gl = [gd,gv,gbr,grr,gc,ga,gr]
+        ba = ['Inaccurate',"Spray'n Pray",'Sawed-Off']
+        br = ['Retroactive','Rocket-Like']
+        gl = [gd,gv,gbr,grr,gc,ga,gr,gm]
         bl = [bd,bv,bbr,brr,bc,ba,br]
         self.type = types[random.randint(0,len(types)-1)]
         self.bar = None
+        self.lz = False
         if random.randint(0,1) == 1:
             a1 = gl[random.randint(0,len(gl)-1)]
         else:
-            a1 = bl[random.randint(0,len(gl)-1)]
+            a1 = bl[random.randint(0,len(bl)-1)]
         if random.randint(0,1) == 1:
             if random.randint(0,1) == 1:
                 a2 = gl[random.randint(0,len(gl)-1)]
             else:
-                a2 = bl[random.randint(0,len(gl)-1)]
+                a2 = bl[random.randint(0,len(bl)-1)]
             if random.randint(0,1) == 1:
                 if random.randint(0,1) == 1:
                     a3 = gl[random.randint(0,len(gl)-1)]
                 else:
-                    a3 = bl[random.randint(0,len(gl)-1)]
+                    a3 = bl[random.randint(0,len(bl)-1)]
             else:
                 a3 = 0
         else:
             a2 = 0
         if self.type == 'Minigun':
-            self.d = 1
             self.v = 40
             self.rc = -50
             self.br = 2
@@ -285,17 +321,17 @@ class gun:
             self.c = 40
             self.rr = 80
             self.h = 5
+            self.m = 1
         elif self.type == 'Pistol':
-            self.d = 5
             self.v = 40
             self.rc = -50
             self.br = 10
             self.ac = 20
             self.c = 10
             self.rr = 20
-            self.h = 20
+            self.h = 40
+            self.m = 1
         elif self.type == 'Assault Rifle':
-            self.d = 2
             self.v = 50
             self.rc = -50
             self.br = 4
@@ -303,15 +339,25 @@ class gun:
             self.c = 25
             self.rr = 40
             self.h = 10
+            self.m = 1
         elif self.type == 'Sniper Rifle':
-            self.d = 20
-            self.v = 100
+            self.v = 60
             self.rc = -200
             self.br = 20
             self.ac = 5
             self.c = 5
-            self.rr = 80
+            self.rr = 60
             self.h = 300
+            self.m = 1
+        elif self.type == 'Shotgun':
+            self.v = 40
+            self.rc = -200
+            self.br = 20
+            self.ac = 90
+            self.c = 20
+            self.rr = 50
+            self.h = 50
+            self.m = 5
         a1 = self.getatts(a1)
         if a2 != 0:
             a2 = self.getatts(a2)
@@ -327,7 +373,7 @@ class gun:
         self.crate.draw(win)
         
     def trans(self):
-        global magmax,rltg,rltb,velo,acc,recoil,name,bhealth
+        global magmax,rltg,rltb,velo,acc,recoil,name,bhealth,mult,lazer
         if self.bar == None:
             name = self.name
             rltg = self.rr
@@ -337,6 +383,8 @@ class gun:
             bhealth = self.h
             magmax = self.c
             recoil = self.rc
+            mult = self.m
+            lazer = self.lz
             self.bar = 'closed'
             self.rect.undraw()
             self.crate.undraw()
@@ -350,7 +398,7 @@ class gun:
     def getatts(self,a):
         if self.bar == None:
             if a == gd:
-                self.d = int(1.5 * self.d)
+                self.h = int(1.5 * self.h)
                 return gd[random.randint(0,len(gd)-1)]
             elif a == gv:
                 self.v = int(1.5 * self.v)
@@ -365,13 +413,21 @@ class gun:
                 self.c = int(1.5 * self.c)
                 return gc[random.randint(0,len(gc)-1)]
             elif a == ga:
-                self.ac = int(.75 * self.ac)
-                return ga[random.randint(0,len(ga)-1)]
+                kk = ga[random.randint(0,len(ga)-1)]
+                if kk == 'Laser-Scoped':
+                    self.lz = True
+                    self.ac = int(.25 * self.ac)
+                else:
+                    self.ac = int(.75 * self.ac)
+                return kk
             elif a == gr:
                 self.rc = int(.75 * self.rc)
                 return gr[random.randint(0,len(gr)-1)]
+            elif a == gm:
+                self.m = int(2 * self.m)
+                return gm[random.randint(0,len(gm)-1)]
             elif a == bd:
-                self.d = int(.75 * self.d)
+                self.h = int(.75 * self.h)
                 return bd[random.randint(0,len(bd)-1)]
             elif a == bv:
                 self.v = int(.75 * self.v)
@@ -399,7 +455,8 @@ class gun:
     
 def main(ww,hh):
     global up, key, falling,curx1,curx2,but,tb,nxt,x,y,falling,score,win,drop
-    global magmax,rltg,rltb,velo,acc,recoil,win_height,name,bhealth
+    global magmax,rltg,rltb,velo,acc,recoil,win_height,name,bhealth,mult
+    global lazer,phealth,phbar
     win_height = hh
     win = GraphWin('hi',ww,hh)
     win.setCoords(0,0,1920,1080)
@@ -412,7 +469,9 @@ def main(ww,hh):
     fps = Text(Point(1900,1040),'');fps.draw(win)
     ammo = Text(Point(1820,1020),'');ammo.draw(win);ammo.setSize(15);ammo.setFace('helvetica')
     score_text = Text(Point(100,1020),'');score_text.draw(win);score_text.setSize(20);score_text.setFace('helvetica')
-    gunname_text = Text(Point(800,1020),'Starter Gun');gunname_text.draw(win);gunname_text.setSize(20);gunname_text.setFace('helvetica')
+    gunname_text = Text(Point(800,970),'Starter Gun');gunname_text.draw(win);gunname_text.setSize(20);gunname_text.setFace('helvetica')
+    round_text = Text(Point(100,980),'Round 1');round_text.setSize(15);round_text.setFace('helvetica');round_text.draw(win)
+    bigrnd_text = Text(Point(960,540),'');bigrnd_text.setSize(35);bigrnd_text.setFace('helvetica');bigrnd_text.draw(win)
     player = Rectangle(Point(985,120),Point(1015,150));player.setWidth(0);player.setFill('Blue');player.draw(win)
     blocks = [Rectangle(Point(-10,-10),Point(20,1080)),Rectangle(Point(1910,-10),Point(1930,1090)),
               Rectangle(Point(-10,1060),Point(1940,1100)),Rectangle(Point(-10,-10),Point(1940,10)),
@@ -420,7 +479,10 @@ def main(ww,hh):
               ,Rectangle(Point(660,10),Point(1260,20)),Rectangle(Point(670,400),Point(1250,440))
               ,Rectangle(Point(150,600),Point(650,640)),Rectangle(Point(1280,600),Point(1770,640))
               ,Rectangle(Point(10,10),Point(110,110)),Rectangle(Point(1810,10),Point(1910,110))
-              ,Rectangle(Point(10,400),Point(210,440)),Rectangle(Point(1710,400),Point(1910,440))]
+              ,Rectangle(Point(10,400),Point(210,440)),Rectangle(Point(1710,400),Point(1910,440)),
+              Rectangle(Point(880,840),Point(1040,880))]
+    phbarr = Rectangle(Point(660,990),Point(1260,1020));phbarr.setFill('red');phbarr.setWidth(0);phbarr.draw(win)
+    phbar = Rectangle(Point(660,990),Point(1260,1020));phbar.setFill('green');phbar.setWidth(0);phbar.draw(win)
     for i in range(len(blocks)):
         blocks[i].setFill('black')
         blocks[i].setWidth(0)
@@ -429,16 +491,19 @@ def main(ww,hh):
     right = False;moving = False;up = True;falling = True;vert = False;but = False;yay=False;reload = False
     g = 0.5;f = 0.95;a=2;ts=10;x = 0;y=0;mx=0;my=0;bult = [];tb = 0;nxt = 0;xx=0;yy=0
     mobtime = 10;mob = [];score = 0;drop = []
+    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 100
     #starter gun
     magmax = 10
     mag = magmax
     rltg = 20
-    velo = 30
+    velo = 5
     rltb = 5
     acc = 100
     recoil = -70
     bhealth = 10
+    mult = 1
     name = 'Starter gun'
+    lazer = True
     while True:
         win.update()
         #=====Start Code=====#
@@ -477,7 +542,7 @@ def main(ww,hh):
             x *= f
         #barriers
         for j in range(len(blocks)):
-            over = overlap(player,blocks[j],x,y)
+            over = overlap(player,blocks[j],x,y,False,False,0)
             if over != False:
                 x,y = over
         #move
@@ -487,14 +552,26 @@ def main(ww,hh):
         if tb >= nxt:
             reload = False
             if but and mag > 0:
-                bult.append(bullet(px,py,mx,my,velo,rltb,acc,recoil,))
-                mag -= 1
+                for i in range(mult):
+                    if mag > 0:
+                        bult.append(bullet(px,py,mx,my,velo,rltb,acc,recoil))
+                        mag -= 1
                 tb = 0
             elif mag == 0:
                 tb = -1 * rltg
                 reload = True
                 mag = magmax
         tb += 1
+        #lazer
+        if lazer:
+            try:
+                Lll.undraw()
+                del Lll
+            except:
+                l=0
+            Lll = Line(Point(px,py),Point((mx-px)*20,(my-py)*20))
+            Lll.setFill('red');Lll.draw(win)
+            
         #move/destroy bullets
         yay = True
         for i in range(len(bult)):
@@ -507,9 +584,9 @@ def main(ww,hh):
             bult = []
         ammo.setText(mag)
         score_text.setText(score)
-        if mag < 5:
+        if mag < magmax//5:
             ammo.setTextColor('red')
-        elif mag < 10:
+        elif mag < magmax//2:
             ammo.setTextColor('orange')
         elif reload:
             ammo.setTextColor('blue')
@@ -521,7 +598,7 @@ def main(ww,hh):
         if not falling and (px+30 < curx1 or px > curx2):
             falling = True
         #enemies
-        if mobtime >= 50:
+        if spawning and mobtime >= 10:
             mobtime = 0
             if score < 10:
                 hhh = 10
@@ -533,7 +610,8 @@ def main(ww,hh):
                 ttt = 'blue'
             else:
                 ttt = 'green'
-            mob.append(slime(win,500,500,hhh,ttt))
+            toth += hhh
+            mob.append(slime(win,960,1000,hhh,ttt))
         else:
             mobtime += 1
         mobclosed = True
@@ -541,14 +619,46 @@ def main(ww,hh):
             mob[i].mvee(px,py,blocks,bult)
             if mob[i].getClosed():
                 mobclosed = False
+            overlap(player,mob[i].getrect(),0,0,False,True,mob[i].getHealth())
         if mobclosed:
             mob = []
         #drops
         for i in range(len(drop)):
-            if drop[i].getClosed() == None and overlap(player,drop[i].getrect(),x,y):
+            if drop[i].getClosed() == None and overlap(player,drop[i].getrect(),x,y,True,False,0):
                 drop[i].trans()
+                try:
+                    Lll.undraw()
+                    del Lll
+                except:
+                    l=0
                 mag = magmax
                 gunname_text.setText(name)
+        #rounds!
+        if spawning and toth > rnd * 100:
+            toth = 0
+            spawning = False
+        rndcont = False
+        for ii in range(len(mob)):
+            if not spawning and mob[ii].getClosed():
+                rndcont = True
+        if rndcont == False and not spawning:
+            mob = []
+            rnd += 1
+            round_text.setText('Round '+str(rnd))
+            spawning = True
+            bigrnd = True
+            bigrndcont = 0
+        if bigrnd:
+            if bigrndcont == 0:
+                bigrnd_text.setText('Round '+str(rnd))
+            bigrndcont += 1
+            if bigrndcont > 200:
+                bigrnd_text.setText('')
+                bigrnd = False
+                bigrndcont = 0
+        #gameover
+        if phealth <= 0:
+            gameover()
         #fudging it
         if py < 10:
             player.move(0,10)
