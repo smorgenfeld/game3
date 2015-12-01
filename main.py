@@ -22,6 +22,7 @@ def overlap(r1,r2,x,y,cr8,slime,sh):
         elif slime:
             phealth -= sh//15 + 1
             updatehealth(phealth)
+            print('m',sep='')
         else:
             if r1x-x >= r2p2x:
                 x = (r1x-x)-r2p2x
@@ -46,6 +47,7 @@ def updatehealth(ph):
     phbar.setWidth(0);phbar.setFill('green');phbar.draw(win)
 
 def gameover():
+    phbar.undraw()
     over = Text(Point(960,580),'Game Over');over.setFill('red');over.setFace('helvetica');over.setSize(35);over.draw(win)
     click = Text(Point(960,490),'Click Anywhere to Continue:');click.setFace('helvetica');click.setSize(20);click.draw(win)
     win.getMouse()
@@ -619,7 +621,7 @@ def main(ww,hh,full):
             mob[i].mvee(px,py,blocks,bult)
             if mob[i].getClosed():
                 mobclosed = False
-            overlap(player,mob[i].getrect(),x,y,False,True,mob[i].getHealth())
+                overlap(player,mob[i].getrect(),x,y,False,True,mob[i].getHealth())
         if mobclosed:
             mob = []
         #drops
