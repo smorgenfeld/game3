@@ -3,8 +3,7 @@
 from graphics import *
 from time import *
 import tkinter, random, math, setup
-import math
-import random
+import math, random, title
 
 def overlap(r1,r2,x,y,cr8,slime,sh):
     global falling,curx1,curx2,phealth
@@ -22,7 +21,6 @@ def overlap(r1,r2,x,y,cr8,slime,sh):
         elif slime:
             phealth -= sh//15 + 1
             updatehealth(phealth)
-            print('m',sep='')
         else:
             if r1x-x >= r2p2x:
                 x = (r1x-x)-r2p2x
@@ -51,7 +49,7 @@ def gameover():
     over = Text(Point(960,580),'Game Over');over.setFill('red');over.setFace('helvetica');over.setSize(35);over.draw(win)
     click = Text(Point(960,490),'Click Anywhere to Continue:');click.setFace('helvetica');click.setSize(20);click.draw(win)
     win.getMouse()
-    quit()
+    title.title(None,None,None,False,win)
 
 def keyup(e):
     global up,key
@@ -455,13 +453,12 @@ class gun:
 
     
     
-def main(ww,hh,full):
+def main(ww,hh,sin):
     global up, key, falling,curx1,curx2,but,tb,nxt,x,y,falling,score,win,drop
     global magmax,rltg,rltb,velo,acc,recoil,win_height,name,bhealth,mult
     global lazer,phealth,phbar
+    win = sin
     win_height = hh
-    win = GraphWin('hi',ww,hh,fullscreen=full)
-    win.setCoords(0,0,1920,1080)
     win.bind("<KeyPress>",keydown)
     win.bind("<KeyRelease>",keyup)
     win.bind("<Button-1>",butdown)
@@ -493,7 +490,7 @@ def main(ww,hh,full):
     right = False;moving = False;up = True;falling = True;vert = False;but = False;yay=False;reload = False
     g = 0.5;f = 0.95;a=2;ts=10;x = 0;y=0;mx=0;my=0;bult = [];tb = 0;nxt = 0;xx=0;yy=0
     mobtime = 10;mob = [];score = 0;drop = []
-    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 100
+    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 0
     #starter gun
     magmax = 10
     mag = magmax
@@ -524,7 +521,7 @@ def main(ww,hh,full):
         else:
             moving = False
         mx =(win.winfo_pointerx()-win.winfo_rootx())*(1920/ww)
-        my = win.winfo_screenheight()-((win.winfo_pointery()-win.winfo_rooty())*(1080/hh))
+        my = ((win.winfo_rooty()-win.winfo_pointery())*(1080/hh))+1080
         #movement
         if moving and right:
             if x > ts:
@@ -571,7 +568,7 @@ def main(ww,hh,full):
                 del Lll
             except:
                 l=0
-            Lll = Line(Point(px,py),Point((mx-px)*20,(my-py)*20))
+            Lll = Line(Point(px,py),Point((mx),(my)))
             Lll.setFill('red');Lll.draw(win)
             
         #move/destroy bullets
@@ -674,6 +671,7 @@ def main(ww,hh,full):
         fps.setText(str(round(1/(time()-ti),3)))
         ti = time()
 ww,hh,full=setup.setup()
-main(ww,hh,full)
+win = title.title(ww,hh,full,True,None)
+main(ww,hh,win)
 
 
