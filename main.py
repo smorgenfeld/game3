@@ -490,7 +490,7 @@ def main(ww,hh,sin):
     right = False;moving = False;up = True;falling = True;vert = False;but = False;yay=False;reload = False
     g = 0.5;f = 0.95;a=2;ts=10;x = 0;y=0;mx=0;my=0;bult = [];tb = 0;nxt = 0;xx=0;yy=0
     mobtime = 10;mob = [];score = 0;drop = []
-    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 0
+    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 100
     #starter gun
     magmax = 10
     mag = magmax
