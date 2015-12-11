@@ -3,7 +3,7 @@
 from graphics import *
 from time import *
 import tkinter, random, math, setup
-import math, random, title
+import math, random, title, buttons
 
 def overlap(r1,r2,x,y,cr8,slime,sh):
     global falling,curx1,curx2,phealth
@@ -45,11 +45,14 @@ def updatehealth(ph):
     phbar.setWidth(0);phbar.setFill('green');phbar.draw(win)
 
 def gameover():
+    global win
+    print('over')
     phbar.undraw()
+    win.getMouse()
     over = Text(Point(960,580),'Game Over');over.setFill('red');over.setFace('helvetica');over.setSize(35);over.draw(win)
     click = Text(Point(960,490),'Click Anywhere to Continue:');click.setFace('helvetica');click.setSize(20);click.draw(win)
-    win.getMouse()
-    title.title(None,None,None,False,win)
+    win.clear()
+    win = title(None,None,None,False)
 
 def keyup(e):
     global up,key
@@ -463,6 +466,7 @@ def main(ww,hh,sin):
     win.bind("<KeyRelease>",keyup)
     win.bind("<Button-1>",butdown)
     win.bind("<ButtonRelease-1>",butup)
+    win.bind("<Button-1>", win._onClick)
     win.pack()
     win.focus_set()
     fps = Text(Point(1900,1040),'');fps.draw(win)
@@ -490,7 +494,7 @@ def main(ww,hh,sin):
     right = False;moving = False;up = True;falling = True;vert = False;but = False;yay=False;reload = False
     g = 0.5;f = 0.95;a=2;ts=10;x = 0;y=0;mx=0;my=0;bult = [];tb = 0;nxt = 0;xx=0;yy=0
     mobtime = 10;mob = [];score = 0;drop = []
-    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 100
+    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 1
     #starter gun
     magmax = 10
     mag = magmax
@@ -670,8 +674,32 @@ def main(ww,hh,sin):
                 print('lol')
         fps.setText(str(round(1/(time()-ti),3)))
         ti = time()
+        
+def title(ww,hh,full,start):
+    global win
+    if start == True:
+        win = GraphWin('hi',ww,hh,fullscreen=full)
+        win.setCoords(0,0,1920,1080)
+        l1 = Text(Point(960,600),'Game3')
+        l1.setFace('helvetica');l1.setSize(35);l1.draw(win)
+        c = buttons.buttonChoice(20,280,1900,400,'Play','Quit',win,True)
+        if c == 1:
+            l1.undraw()
+            return win
+        else:
+            quit()
+    else:
+        l1 = Text(Point(960,600),'Game3')
+        l1.setFace('helvetica');l1.setSize(35);l1.draw(win)
+        c = buttons.buttonChoice(20,280,1900,400,'Play','Quit',win,True)
+        if c == 1:
+            l1.undraw()
+            return win
+        else:
+            quit()
+            
 ww,hh,full=setup.setup()
-win = title.title(ww,hh,full,True,None)
+win = title(ww,hh,full,True)
 main(ww,hh,win)
 
 
