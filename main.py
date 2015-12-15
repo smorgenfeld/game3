@@ -61,10 +61,21 @@ def gameover():
     win.bind("<Button-1>", win._onClick)
     win.pack()
     phbar.undraw()
+    #saving
+    savefiler = open('resources/save.txt','r')
+    phscore = savefiler.readline()
+    savefiler.close()
+    savefilew = open('resources/save.txt','w')
+    hscore = max(int(score),int(phscore))
+    print(hscore,file=savefilew)
+    print(crate_tot,file=savefilew)
+    savefilew.close()
+    #endscreen
     over = Text(Point(960,580),'Game Over');over.setFill('red');over.setFace('helvetica');over.setSize(35);over.draw(win)
     click = Text(Point(960,490),'Click Anywhere to Continue:');click.setFace('helvetica');click.setSize(20);click.draw(win)
     win.getMouse()
     win.clear()
+    
     win = title(None,None,None,False)
     main(ww,hh,win)
 
@@ -473,7 +484,7 @@ class gun:
 def main(ww,hh,sin):
     global up, key, falling,curx1,curx2,but,tb,nxt,x,y,falling,score,win,drop
     global magmax,rltg,rltb,velo,acc,recoil,win_height,name,bhealth,mult
-    global lazer,phealth,phbar,pinvul,pinvulcont
+    global lazer,phealth,phbar,pinvul,pinvulcont, crate_tot
     win = sin
     win_height = hh
     win.bind("<KeyPress>",keydown)
@@ -482,6 +493,8 @@ def main(ww,hh,sin):
     win.bind("<ButtonRelease-1>",butup)
     win.pack()
     win.focus_set()
+    highscore = Text(Point(100,900),'High Score: '+high_score);highscore.setFace('helvetica');highscore.draw(win)
+    cratetot = Text(Point(100,800),'Caish: '+str(crate_tot));cratetot.setFace('helvetica');cratetot.draw(win)
     fps = Text(Point(1900,1040),'');fps.draw(win)
     ammo = Text(Point(1820,1020),'');ammo.draw(win);ammo.setSize(15);ammo.setFace('helvetica')
     score_text = Text(Point(100,1020),'');score_text.draw(win);score_text.setSize(20);score_text.setFace('helvetica')
@@ -507,8 +520,9 @@ def main(ww,hh,sin):
     right = False;moving = False;up = True;falling = True;vert = False;but = False;yay=False;reload = False
     g = 0.5;f = 0.95;a=2;ts=10;x = 0;y=0;mx=0;my=0;bult = [];tb = 0;nxt = 0;xx=0;yy=0
     mobtime = 10;mob = [];score = 0;drop = []
-    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 10000
+    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 0
     pinvul = False;pinvulcont = 0;pinvulccont = 0
+    crate_tot += 1
     #starter gun
     magmax = 10
     mag = magmax
@@ -656,6 +670,8 @@ def main(ww,hh,sin):
         for i in range(len(drop)):
             if drop[i].getClosed() == None and overlap(player,drop[i].getrect(),x,y,True,False,0):
                 drop[i].trans()
+                crate_tot += 1
+                cratetot.setText('Caish: '+str(crate_tot))
                 try:
                     Lll.undraw()
                     del Lll
@@ -703,29 +719,32 @@ def main(ww,hh,sin):
         ti = time()
         
 def title(ww,hh,full,start):
-    global win
+    global win, high_score, crate_tot
+    savefiler = open('resources/save.txt','r')
+    high_score = savefiler.readline()
+    crate_tot = eval(savefiler.readline())
+    savefiler.close()
     if start == True:
-        win = GraphWin('hi',ww,hh,fullscreen=full)
+        win = GraphWin('Game3',ww,hh,fullscreen=full)
         win.setCoords(0,0,1920,1080)
-        l1 = Text(Point(960,600),'Game3')
-        l1.setFace('helvetica');l1.setSize(35);l1.draw(win)
-        c = buttons.buttonChoice(20,280,1900,400,'Play','Quit',win,True)
-        if c == 1:
-            l1.undraw()
-            return win
-        else:
-            win.quit()
-            sys.exit()
+    l1 = Text(Point(960,800),'Game3')
+    l1.setFace('helvetica');l1.setSize(35);l1.draw(win)
+    ct = Text(Point(960,200),'Caish: '+str(crate_tot))
+    ct.setFace('helvetica');ct.draw(win)
+    hs = Text(Point(960,100),'High Score: '+high_score)
+    hs.setFace('helvetica');hs.draw(win)
+    c = buttons.buttonChoice3(20,280,1900,600,'Play','Quit','Shop',win,True)
+    
+    if c == 1:
+        win.clear()
+        return win,game
+    elif c==3:
+        win.clear()
+        return win,shop
     else:
-        l1 = Text(Point(960,600),'Game3')
-        l1.setFace('helvetica');l1.setSize(35);l1.draw(win)
-        c = buttons.buttonChoice(20,280,1900,400,'Play','Quit',win,True)
-        if c == 1:
-            l1.undraw()
-            return win
-        else:
-            win.quit()
-            sys.exit()
+        win.quit()
+        sys.exit()
+    
             
 ww,hh,full=setup.setup()
 win = title(ww,hh,full,True)
