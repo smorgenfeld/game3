@@ -6,7 +6,7 @@ import tkinter, random, math, setup, sys
 import math, random, title, buttons
 
 def overlap(r1,r2,x,y,cr8,slime,sh):
-    global falling,curx1,curx2,phealth
+    global falling,curx1,curx2,phealth,pinvul,pinvulcont
     r1cent = r1.getCenter()
     r1x = r1cent.getX()-15 + x
     r1y = r1cent.getY()+15 + y
@@ -19,8 +19,18 @@ def overlap(r1,r2,x,y,cr8,slime,sh):
         if cr8:
             return True
         elif slime:
-            phealth -= sh//15 + 1
-            updatehealth(phealth)
+            if not pinvul:
+                pinvul = True
+                pinvulcont = 100
+                phealth -= sh//25 + 2
+                if r1x >= r2.getCenter().getX():
+                    xx = -2
+                else:
+                    xx = 2
+                updatehealth(phealth)
+                return xx
+            else:
+                return 0
         else:
             if r1x-x >= r2p2x:
                 x = (r1x-x)-r2p2x
@@ -34,6 +44,8 @@ def overlap(r1,r2,x,y,cr8,slime,sh):
                 curx1 = r2p1x
                 curx2 = r2p2x
             return x,y
+    elif slime:
+        return 0
     else:
         return False
 
@@ -155,7 +167,7 @@ class slime:
         else:
             self.health = health
             self.wh = health//2+20
-        self.rekt = Rectangle(Point(initx,inity),Point(initx+self.wh,inity-self.wh))
+        self.rekt = Rectangle(Point(initx,inity-self.wh),Point(initx+self.wh,inity))
         self.rekt.setWidth(0);self.rekt.setFill(t);self.rekt.draw(win)
         self.falling = True
         self.cur = ''
@@ -461,7 +473,7 @@ class gun:
 def main(ww,hh,sin):
     global up, key, falling,curx1,curx2,but,tb,nxt,x,y,falling,score,win,drop
     global magmax,rltg,rltb,velo,acc,recoil,win_height,name,bhealth,mult
-    global lazer,phealth,phbar
+    global lazer,phealth,phbar,pinvul,pinvulcont
     win = sin
     win_height = hh
     win.bind("<KeyPress>",keydown)
@@ -495,7 +507,8 @@ def main(ww,hh,sin):
     right = False;moving = False;up = True;falling = True;vert = False;but = False;yay=False;reload = False
     g = 0.5;f = 0.95;a=2;ts=10;x = 0;y=0;mx=0;my=0;bult = [];tb = 0;nxt = 0;xx=0;yy=0
     mobtime = 10;mob = [];score = 0;drop = []
-    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 1
+    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 10000
+    pinvul = False;pinvulcont = 0;pinvulccont = 0
     #starter gun
     magmax = 10
     mag = magmax
@@ -552,6 +565,19 @@ def main(ww,hh,sin):
         #move
         player.move(x,y)
         px = player.getCenter().getX();py = player.getCenter().getY()
+        #invul effects
+        if pinvul:
+            pinvulcont -= 1
+            pinvulccont += 1
+            if pinvulccont == 20:
+                player.setFill('Red')
+                pinvulccont == 0
+            elif pinvulccont == 10:
+                player.setFill('Blue')
+            if pinvulcont >= 0:
+                player.setFill('Blue')
+                pinvul = False
+                pinvulcont = 0
         #shooting
         if tb >= nxt:
             reload = False
@@ -623,7 +649,7 @@ def main(ww,hh,sin):
             mob[i].mvee(px,py,blocks,bult)
             if mob[i].getClosed():
                 mobclosed = False
-                overlap(player,mob[i].getrect(),x,y,False,True,mob[i].getHealth())
+                x += overlap(player,mob[i].getrect(),0,0,False,True,mob[i].getHealth())
         if mobclosed:
             mob = []
         #drops
