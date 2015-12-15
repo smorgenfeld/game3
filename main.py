@@ -2,7 +2,7 @@
 
 from graphics import *
 from time import *
-import tkinter, random, math, setup
+import tkinter, random, math, setup, sys
 import math, random, title, buttons
 
 def overlap(r1,r2,x,y,cr8,slime,sh):
@@ -48,7 +48,6 @@ def gameover():
     global win
     win.bind("<Button-1>", win._onClick)
     win.pack()
-    print('over')
     phbar.undraw()
     over = Text(Point(960,580),'Game Over');over.setFill('red');over.setFace('helvetica');over.setSize(35);over.draw(win)
     click = Text(Point(960,490),'Click Anywhere to Continue:');click.setFace('helvetica');click.setSize(20);click.draw(win)
@@ -574,7 +573,7 @@ def main(ww,hh,sin):
                 del Lll
             except:
                 l=0
-            Lll = Line(Point(px,py),Point((mx),(my)))
+            Lll = Line(Point(px,py),Point(((mx-px)*2000+mx),(my-py)*2000+my))
             Lll.setFill('red');Lll.draw(win)
             
         #move/destroy bullets
@@ -689,7 +688,8 @@ def title(ww,hh,full,start):
             l1.undraw()
             return win
         else:
-            quit()
+            win.quit()
+            sys.exit()
     else:
         l1 = Text(Point(960,600),'Game3')
         l1.setFace('helvetica');l1.setSize(35);l1.draw(win)
@@ -698,7 +698,8 @@ def title(ww,hh,full,start):
             l1.undraw()
             return win
         else:
-            quit()
+            win.quit()
+            sys.exit()
             
 ww,hh,full=setup.setup()
 win = title(ww,hh,full,True)

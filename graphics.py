@@ -157,6 +157,9 @@ class GraphWin(tk.Canvas):
     def clear(self):
         self.delete("all")
 
+    def quit(self):
+        self.master.destroy()
+
     def setBackground(self, color):
         """Set background color of the window"""
         self.__checkOpen()
