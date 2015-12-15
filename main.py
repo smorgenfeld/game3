@@ -46,13 +46,16 @@ def updatehealth(ph):
 
 def gameover():
     global win
+    win.bind("<Button-1>", win._onClick)
+    win.pack()
     print('over')
     phbar.undraw()
-    win.getMouse()
     over = Text(Point(960,580),'Game Over');over.setFill('red');over.setFace('helvetica');over.setSize(35);over.draw(win)
     click = Text(Point(960,490),'Click Anywhere to Continue:');click.setFace('helvetica');click.setSize(20);click.draw(win)
+    win.getMouse()
     win.clear()
     win = title(None,None,None,False)
+    main(ww,hh,win)
 
 def keyup(e):
     global up,key
@@ -466,7 +469,6 @@ def main(ww,hh,sin):
     win.bind("<KeyRelease>",keyup)
     win.bind("<Button-1>",butdown)
     win.bind("<ButtonRelease-1>",butup)
-    win.bind("<Button-1>", win._onClick)
     win.pack()
     win.focus_set()
     fps = Text(Point(1900,1040),'');fps.draw(win)
