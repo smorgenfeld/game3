@@ -3,6 +3,7 @@ from tkinter import *
 def setup():
     gin = Tk()
     gin.geometry('200x200')
+    gin.title('')
     lst1 = ['960x540','Fullscreen (Native)','1920x1080','1600x900','1280x720']
     var1 = StringVar(gin)
     var1.set(lst1[0])

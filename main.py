@@ -520,7 +520,7 @@ def main(ww,hh,sin):
     right = False;moving = False;up = True;falling = True;vert = False;but = False;yay=False;reload = False
     g = 0.5;f = 0.95;a=2;ts=10;x = 0;y=0;mx=0;my=0;bult = [];tb = 0;nxt = 0;xx=0;yy=0
     mobtime = 10;mob = [];score = 0;drop = []
-    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 0
+    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 100
     pinvul = False;pinvulcont = 0;pinvulccont = 0
     crate_tot += 1
     #starter gun
@@ -737,17 +737,18 @@ def title(ww,hh,full,start):
     
     if c == 1:
         win.clear()
-        return win,game
+        return win,'game'
     elif c==3:
         win.clear()
-        return win,shop
+        return win,'shop'
     else:
         win.quit()
         sys.exit()
     
             
 ww,hh,full=setup.setup()
-win = title(ww,hh,full,True)
-main(ww,hh,win)
+win,scr = title(ww,hh,full,True)
+if scr == 'game':
+    main(ww,hh,win)
 
 
