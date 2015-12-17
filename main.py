@@ -3,7 +3,7 @@
 from graphics import *
 from time import *
 import tkinter, random, math, setup, sys
-import math, random, title, buttons
+import math, random, title, buttons, shop
 
 def overlap(r1,r2,x,y,cr8,slime,sh):
     global falling,curx1,curx2,phealth,pinvul,pinvulcont
@@ -64,20 +64,26 @@ def gameover():
     #saving
     savefiler = open('resources/save.txt','r')
     phscore = savefiler.readline()
+    savefiler.readline()
+    unlocks = savefiler.readline()
+    selected_skin = savefiler.readline()
+    print(selected_skin)
     savefiler.close()
     savefilew = open('resources/save.txt','w')
     hscore = max(int(score),int(phscore))
     print(hscore,file=savefilew)
     print(crate_tot,file=savefilew)
+    print(unlocks,file=savefilew,end='')
+    print(selected_skin,file=savefilew)
     savefilew.close()
     #endscreen
     over = Text(Point(960,580),'Game Over');over.setFill('red');over.setFace('helvetica');over.setSize(35);over.draw(win)
     click = Text(Point(960,490),'Click Anywhere to Continue:');click.setFace('helvetica');click.setSize(20);click.draw(win)
     win.getMouse()
     win.clear()
-    
-    win = title(None,None,None,False)
-    main(ww,hh,win)
+    cont()
+    #title(None,None,None,False)
+    #main(ww,hh,win)
 
 def keyup(e):
     global up,key
@@ -478,13 +484,10 @@ class gun:
             else:
                 print('lolololol')
         
-
-    
-    
 def main(ww,hh,sin):
     global up, key, falling,curx1,curx2,but,tb,nxt,x,y,falling,score,win,drop
     global magmax,rltg,rltb,velo,acc,recoil,win_height,name,bhealth,mult
-    global lazer,phealth,phbar,pinvul,pinvulcont, crate_tot
+    global lazer,phealth,phbar,pinvul,pinvulcont, crate_tot, selected_skin
     win = sin
     win_height = hh
     win.bind("<KeyPress>",keydown)
@@ -493,6 +496,12 @@ def main(ww,hh,sin):
     win.bind("<ButtonRelease-1>",butup)
     win.pack()
     win.focus_set()
+    if selected_skin == 0:
+        pcolor = 'blue'
+    elif selected_skin == 1:
+        pcolor = 'red'
+    elif selected_skin == 2:
+        pcolor = 'yellow'
     highscore = Text(Point(100,900),'High Score: '+high_score);highscore.setFace('helvetica');highscore.draw(win)
     cratetot = Text(Point(100,800),'Caish: '+str(crate_tot));cratetot.setFace('helvetica');cratetot.draw(win)
     fps = Text(Point(1900,1040),'');fps.draw(win)
@@ -501,7 +510,7 @@ def main(ww,hh,sin):
     gunname_text = Text(Point(800,970),'Starter Gun');gunname_text.draw(win);gunname_text.setSize(20);gunname_text.setFace('helvetica')
     round_text = Text(Point(100,980),'Round 1');round_text.setSize(15);round_text.setFace('helvetica');round_text.draw(win)
     bigrnd_text = Text(Point(960,540),'');bigrnd_text.setSize(35);bigrnd_text.setFace('helvetica');bigrnd_text.draw(win)
-    player = Rectangle(Point(985,120),Point(1015,150));player.setWidth(0);player.setFill('Blue');player.draw(win)
+    player = Rectangle(Point(985,120),Point(1015,150));player.setWidth(0);player.setFill(pcolor);player.draw(win)
     blocks = [Rectangle(Point(-10,-10),Point(20,1080)),Rectangle(Point(1910,-10),Point(1930,1090)),
               Rectangle(Point(-10,1060),Point(1940,1100)),Rectangle(Point(-10,-10),Point(1940,10)),
               Rectangle(Point(70,190),Point(570,230)),Rectangle(Point(1350,190),Point(1850,230))
@@ -520,7 +529,7 @@ def main(ww,hh,sin):
     right = False;moving = False;up = True;falling = True;vert = False;but = False;yay=False;reload = False
     g = 0.5;f = 0.95;a=2;ts=10;x = 0;y=0;mx=0;my=0;bult = [];tb = 0;nxt = 0;xx=0;yy=0
     mobtime = 10;mob = [];score = 0;drop = []
-    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 100
+    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 0
     pinvul = False;pinvulcont = 0;pinvulccont = 0
     crate_tot += 1
     #starter gun
@@ -719,10 +728,12 @@ def main(ww,hh,sin):
         ti = time()
         
 def title(ww,hh,full,start):
-    global win, high_score, crate_tot
+    global win, high_score, crate_tot, selected_skin
     savefiler = open('resources/save.txt','r')
     high_score = savefiler.readline()
     crate_tot = eval(savefiler.readline())
+    unlocks = savefiler.readline()
+    selected_skin = eval(savefiler.readline())
     savefiler.close()
     if start == True:
         win = GraphWin('Game3',ww,hh,fullscreen=full)
@@ -737,18 +748,30 @@ def title(ww,hh,full,start):
     
     if c == 1:
         win.clear()
-        return win,'game'
+        if start:
+            return win,'game'
+        else:
+            return 'game'
     elif c==3:
         win.clear()
-        return win,'shop'
+        if start:
+            return win,'shop'
+        else:
+            return 'shop'
     else:
         win.quit()
         sys.exit()
     
-            
+def cont(screen=None):
+    while True:
+        scr = title(None,None,None,False)
+        if scr == 'game':
+            main(ww,hh,win)
+        elif scr == 'shop':
+            shop.shop(win)
+
 ww,hh,full=setup.setup()
 win,scr = title(ww,hh,full,True)
-if scr == 'game':
-    main(ww,hh,win)
+cont(screen=scr)
 
 
