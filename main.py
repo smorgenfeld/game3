@@ -347,7 +347,7 @@ class gun:
         else:
             a2 = 0
         if self.type == 'Minigun':
-            self.v = 40
+            self.v = 25
             self.rc = -50
             self.br = 2
             self.ac = 100
@@ -356,7 +356,7 @@ class gun:
             self.h = 5
             self.m = 1
         elif self.type == 'Pistol':
-            self.v = 40
+            self.v = 20
             self.rc = -50
             self.br = 10
             self.ac = 20
@@ -365,7 +365,7 @@ class gun:
             self.h = 40
             self.m = 1
         elif self.type == 'Assault Rifle':
-            self.v = 50
+            self.v = 30
             self.rc = -50
             self.br = 4
             self.ac = 80
@@ -374,7 +374,7 @@ class gun:
             self.h = 10
             self.m = 1
         elif self.type == 'Sniper Rifle':
-            self.v = 60
+            self.v = 40
             self.rc = -200
             self.br = 20
             self.ac = 5
@@ -383,7 +383,7 @@ class gun:
             self.h = 300
             self.m = 1
         elif self.type == 'Shotgun':
-            self.v = 40
+            self.v = 20
             self.rc = -200
             self.br = 20
             self.ac = 90
@@ -405,7 +405,7 @@ class gun:
         self.crate = Image(Point(x+30,y),('resources/' + str(win_height) + '/crate.gif'))
         self.crate.draw(win)
         
-    def trans(self):
+    def trans(self,clipmult):
         global magmax,rltg,rltb,velo,acc,recoil,name,bhealth,mult,lazer
         if self.bar == None:
             name = self.name
@@ -414,7 +414,7 @@ class gun:
             velo = self.v
             acc = self.ac
             bhealth = self.h
-            magmax = self.c
+            magmax = self.c * clipmult
             recoil = self.rc
             mult = self.m
             lazer = self.lz
@@ -497,6 +497,8 @@ def main(ww,hh,sin):
     win.focus_set()
     phealth = 100
     ts = 10
+    pimg = False
+    clipmult = 1
     if selected_skin == 0:
         pcolor = 'green'
     elif selected_skin == 1:
@@ -509,6 +511,10 @@ def main(ww,hh,sin):
         pcolor = 'yellow'
         ts = int(ts*1.1)
         phealth = int(phealth*1.1)
+    elif selected_skin == 4:
+        pcolor = 'white'
+        pimg = Image(Point(1000,135),('resources/' + str(win_height) + '/rafi_player.gif'))
+        clipmult = 2
     highscore = Text(Point(100,900),'High Score: '+high_score);highscore.setFace('helvetica');highscore.draw(win)
     cratetot = Text(Point(100,800),'Caish: '+str(crate_tot));cratetot.setFace('helvetica');cratetot.draw(win)
     fps = Text(Point(1900,1040),'');fps.draw(win)
@@ -527,7 +533,11 @@ def main(ww,hh,sin):
               ,Rectangle(Point(10,400),Point(210,440)),Rectangle(Point(1710,400),Point(1910,440)),
               Rectangle(Point(880,840),Point(1040,880))]
     phbarr = Rectangle(Point(960-phealth*3,990),Point(960+phealth*3,1020));phbarr.setFill('red');phbarr.setWidth(0);phbarr.draw(win)
-    phbar = Rectangle(Point(660,990),Point(1260,1020));phbar.setFill('green');phbar.setWidth(0);phbar.draw(win)
+    phbar = Rectangle(Point(960-phealth*3,990),Point(960+phealth*3,1020));phbar.setFill('green');phbar.setWidth(0);phbar.draw(win)
+    try:
+        pimg.draw(win)
+    except:
+        pass
     for i in range(len(blocks)):
         blocks[i].setFill('black')
         blocks[i].setWidth(0)
@@ -543,14 +553,14 @@ def main(ww,hh,sin):
     magmax = 10
     mag = magmax
     rltg = 20
-    velo = 5
+    velo = 20
     rltb = 5
     acc = 100
     recoil = -70
     bhealth = 10
     mult = 1
     name = 'Starter gun'
-    lazer = True
+    lazer = False
     while True:
         win.update()
         #=====Start Code=====#
@@ -595,17 +605,19 @@ def main(ww,hh,sin):
         #move
         player.move(x,y)
         px = player.getCenter().getX();py = player.getCenter().getY()
+        if pimg != False:
+            pimg.move(x,y)
         #invul effects
         if pinvul:
             pinvulcont -= 1
             pinvulccont += 1
-            if pinvulccont == 20:
-                player.setFill('Red')
-                pinvulccont == 0
-            elif pinvulccont == 10:
-                player.setFill('Blue')
+            #if pinvulccont == 20:
+                #player.setFill('Red')
+                #pinvulccont == 0
+            #elif pinvulccont == 10:
+                #player.setFill('Blue')
             if pinvulcont >= 0:
-                player.setFill('Blue')
+                player.setFill(pcolor)
                 pinvul = False
                 pinvulcont = 0
         #shooting
@@ -685,7 +697,7 @@ def main(ww,hh,sin):
         #drops
         for i in range(len(drop)):
             if drop[i].getClosed() == None and overlap(player,drop[i].getrect(),x,y,True,False,0):
-                drop[i].trans()
+                drop[i].trans(clipmult)
                 crate_tot += 1
                 cratetot.setText('Caish: '+str(crate_tot))
                 try:
