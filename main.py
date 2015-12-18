@@ -67,7 +67,6 @@ def gameover():
     savefiler.readline()
     unlocks = savefiler.readline()
     selected_skin = savefiler.readline()
-    print(selected_skin)
     savefiler.close()
     savefilew = open('resources/save.txt','w')
     hscore = max(int(score),int(phscore))
@@ -496,12 +495,20 @@ def main(ww,hh,sin):
     win.bind("<ButtonRelease-1>",butup)
     win.pack()
     win.focus_set()
+    phealth = 100
+    ts = 10
     if selected_skin == 0:
-        pcolor = 'blue'
+        pcolor = 'green'
     elif selected_skin == 1:
-        pcolor = 'red'
+        pcolor = 'blue'
+        phealth = int(phealth*1.25)
     elif selected_skin == 2:
+        pcolor = 'red'
+        ts = int(ts*1.25)
+    elif selected_skin == 3:
         pcolor = 'yellow'
+        ts = int(ts*1.1)
+        phealth = int(phealth*1.1)
     highscore = Text(Point(100,900),'High Score: '+high_score);highscore.setFace('helvetica');highscore.draw(win)
     cratetot = Text(Point(100,800),'Caish: '+str(crate_tot));cratetot.setFace('helvetica');cratetot.draw(win)
     fps = Text(Point(1900,1040),'');fps.draw(win)
@@ -519,7 +526,7 @@ def main(ww,hh,sin):
               ,Rectangle(Point(10,10),Point(110,110)),Rectangle(Point(1810,10),Point(1910,110))
               ,Rectangle(Point(10,400),Point(210,440)),Rectangle(Point(1710,400),Point(1910,440)),
               Rectangle(Point(880,840),Point(1040,880))]
-    phbarr = Rectangle(Point(660,990),Point(1260,1020));phbarr.setFill('red');phbarr.setWidth(0);phbarr.draw(win)
+    phbarr = Rectangle(Point(960-phealth*3,990),Point(960+phealth*3,1020));phbarr.setFill('red');phbarr.setWidth(0);phbarr.draw(win)
     phbar = Rectangle(Point(660,990),Point(1260,1020));phbar.setFill('green');phbar.setWidth(0);phbar.draw(win)
     for i in range(len(blocks)):
         blocks[i].setFill('black')
@@ -527,9 +534,9 @@ def main(ww,hh,sin):
         blocks[i].draw(win)
     ti = time()
     right = False;moving = False;up = True;falling = True;vert = False;but = False;yay=False;reload = False
-    g = 0.5;f = 0.95;a=2;ts=10;x = 0;y=0;mx=0;my=0;bult = [];tb = 0;nxt = 0;xx=0;yy=0
+    g = 0.5;f = 0.95;a=2;x = 0;y=0;mx=0;my=0;bult = [];tb = 0;nxt = 0;xx=0;yy=0
     mobtime = 10;mob = [];score = 0;drop = []
-    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False;phealth = 0
+    rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False
     pinvul = False;pinvulcont = 0;pinvulccont = 0
     crate_tot += 1
     #starter gun
@@ -772,6 +779,10 @@ def cont(screen=None):
 
 ww,hh,full=setup.setup()
 win,scr = title(ww,hh,full,True)
+if scr == 'game':
+    main(ww,hh,win)
+elif scr == 'shop':
+    shop.shop(win)
 cont(screen=scr)
 
 
