@@ -21,8 +21,8 @@ def overlap(r1,r2,x,y,cr8,slime,sh):
         elif slime:
             if not pinvul:
                 pinvul = True
-                pinvulcont = 100
-                phealth -= sh//25 + 2
+                pinvulcont = 200
+                phealth -= sh//50 + 1
                 if r1x >= r2.getCenter().getX():
                     xx = -2
                 else:
@@ -78,6 +78,7 @@ def gameover():
     #endscreen
     over = Text(Point(960,580),'Game Over');over.setFill('red');over.setFace('helvetica');over.setSize(35);over.draw(win)
     click = Text(Point(960,490),'Click Anywhere to Continue:');click.setFace('helvetica');click.setSize(20);click.draw(win)
+    win.update()
     win.getMouse()
     win.clear()
     cont()
@@ -108,7 +109,7 @@ class bullet:
         global nxt,tb,x,y,falling
         nxt = rel
         tb = 0
-        ac = 1+ random.randint(-acur,acur)/100
+        ac =random.randint(-acur,acur)
         self.bar = None
         self.x = x1+10;self.y = y1+10
         self.reckt = Rectangle(Point(self.x-20,self.y-20),Point(self.x,self.y))
@@ -116,10 +117,7 @@ class bullet:
         self.bul.draw(win)
         top = (y2 - y1)
         bottom = (x2 - x1)
-        try:
-            m = top/bottom*ac
-        except:
-            m = top/(bottom*ac+0.001)
+        m = (top-ac)/(bottom+ac)
         self.mx = math.cos(math.atan(m))*v
         self.my = math.tan(math.atan(m)) * self.mx
         if bottom < 0:
@@ -127,7 +125,7 @@ class bullet:
             self.mx *= -1
         x += self.mx/reco
         if falling:
-            y += self.my/reco
+            y += abs(self.my/reco)
         else:
             y = 0
         self.h = bhealth
@@ -177,9 +175,9 @@ def quickcol(x1,x2,y1,y2):
 class slime:
 
     def __init__(self,win,initx,inity,health,t):
-        if t == 'blue':
+        if t == 'blue' or t == 'yellow':
+            self.wh = health//2 + 20
             self.health = health * 2
-            self.wh = health//4 + 20
         else:
             self.health = health
             self.wh = health//2+20
@@ -205,18 +203,18 @@ class slime:
         global score
         if self.bar == None:
             if self.type == 'green':
+                ms = 8
+            elif self.type == 'red' or self.type == 'yellow':
                 ms = 15
-            elif self.type == 'red':
-                ms = 25
             elif self.type == 'blue':
-                ms = 7
+                ms = 4
             if not falling and self.surge >= 50:
                 if py+10 > self.y:
                     if px > self.x:
-                        self.mx = ms - 5
+                        self.mx = ms - 2
                     else:
-                        self.mx = -ms + 5
-                    self.my = random.randint(10,ms + 5)
+                        self.mx = -ms + 2
+                    self.my = random.randint(4,ms + 6)
                     self.falling = True
                 else:
                     if px > self.x:
@@ -238,12 +236,12 @@ class slime:
             c = len(bult)
             i=0
             while i < c and self.bar == None:
-                if self.coll(bult[i].getReckt(),0,0,True):
+                if self.coll(bult[i].getReckt(),0,0,True) and bult[i].bar == None:
                     if self.health > bult[i].getHealth():
                         self.health -= bult[i].getHealth()
                         self.rekt.undraw()
-                        if self.type == 'blue':
-                            self.wh = self.health//4 + 20
+                        if self.type == 'blue' or self.type == 'yellow':
+                            self.wh = self.health//4 + 10
                         else:
                             self.wh = self.health//2 + 20
                         del self.rekt
@@ -309,14 +307,14 @@ class gun:
         global types, gd,bd,gv,bv,gbr,bbr,grr,brr,gc,bc,ga,ba,gr,br,gl,bl,gm
         types = ['Minigun','Pistol','Assault Rifle','Sniper Rifle','Shotgun']
         gd = ['Shiny','Powerful','Destructive','Legendary']
-        gv = ['Inflammed','Furious','Speedy']
-        gbr = ['Automatic','Fast','Greasy']
+        gv = ['Inflammed','Furious','Speedy','High-Velocity']
+        gbr = ['Automatic','Fast','Greasy','Spewingful']
         grr = ['Intuitive','User-Friendly']
         gc = ['Overstuffed','Long-Lasting','High-Capacity']
         ga = ['Suppressed','Accurate','Pin-Point','Scoped','Laser-Scoped']
         gr = ['Stable','Springy']
         gm = ['Double Barreled','Dual Barreled']
-        bd = ['Cracked','Weak']
+        bd = ['Cracked','Weak','Nerfed']
         bv = ['Sluggish','Lethargic','Soporific']
         bbr = ['Restrictive','Manual']
         brr = ['Corroded','Ackward']
@@ -347,34 +345,34 @@ class gun:
         else:
             a2 = 0
         if self.type == 'Minigun':
-            self.v = 25
+            self.v = 12
             self.rc = -50
-            self.br = 2
+            self.br = 4
             self.ac = 100
             self.c = 40
             self.rr = 80
-            self.h = 5
+            self.h = 10
             self.m = 1
         elif self.type == 'Pistol':
-            self.v = 20
+            self.v = 10
             self.rc = -50
-            self.br = 10
+            self.br = 20
             self.ac = 20
             self.c = 10
             self.rr = 20
             self.h = 40
             self.m = 1
         elif self.type == 'Assault Rifle':
-            self.v = 30
+            self.v = 15
             self.rc = -50
-            self.br = 4
+            self.br = 8
             self.ac = 80
             self.c = 25
-            self.rr = 40
-            self.h = 10
+            self.rr = 80
+            self.h = 15
             self.m = 1
         elif self.type == 'Sniper Rifle':
-            self.v = 40
+            self.v = 20
             self.rc = -200
             self.br = 20
             self.ac = 5
@@ -383,7 +381,7 @@ class gun:
             self.h = 300
             self.m = 1
         elif self.type == 'Shotgun':
-            self.v = 20
+            self.v = 10
             self.rc = -200
             self.br = 20
             self.ac = 90
@@ -496,7 +494,7 @@ def main(ww,hh,sin):
     win.pack()
     win.focus_set()
     phealth = 100
-    ts = 10
+    ts = 5
     pimg = False
     clipmult = 1
     if selected_skin == 0:
@@ -515,13 +513,13 @@ def main(ww,hh,sin):
         pcolor = 'white'
         pimg = Image(Point(1000,135),('resources/' + str(win_height) + '/rafi_player.gif'))
         clipmult = 2
-    highscore = Text(Point(100,900),'High Score: '+high_score);highscore.setFace('helvetica');highscore.draw(win)
-    cratetot = Text(Point(100,800),'Caish: '+str(crate_tot));cratetot.setFace('helvetica');cratetot.draw(win)
+    highscore = Text(Point(100,950),'High Score: '+high_score);highscore.setFace('helvetica');highscore.draw(win)
+    cratetot = Text(Point(100,850),'Caish: '+str(crate_tot));cratetot.setFace('helvetica');cratetot.draw(win)
     fps = Text(Point(1900,1040),'');fps.draw(win)
-    ammo = Text(Point(1820,1020),'');ammo.draw(win);ammo.setSize(15);ammo.setFace('helvetica')
+    ammo = Text(Point(1820,1020),'');ammo.draw(win);ammo.setSize(30);ammo.setFace('helvetica')
     score_text = Text(Point(100,1020),'');score_text.draw(win);score_text.setSize(20);score_text.setFace('helvetica')
     gunname_text = Text(Point(800,970),'Starter Gun');gunname_text.draw(win);gunname_text.setSize(20);gunname_text.setFace('helvetica')
-    round_text = Text(Point(100,980),'Round 1');round_text.setSize(15);round_text.setFace('helvetica');round_text.draw(win)
+    round_text = Text(Point(100,900),'Round 1');round_text.setSize(15);round_text.setFace('helvetica');round_text.draw(win)
     bigrnd_text = Text(Point(960,540),'');bigrnd_text.setSize(35);bigrnd_text.setFace('helvetica');bigrnd_text.draw(win)
     player = Rectangle(Point(985,120),Point(1015,150));player.setWidth(0);player.setFill(pcolor);player.draw(win)
     blocks = [Rectangle(Point(-10,-10),Point(20,1080)),Rectangle(Point(1910,-10),Point(1930,1090)),
@@ -534,6 +532,7 @@ def main(ww,hh,sin):
               Rectangle(Point(880,840),Point(1040,880))]
     phbarr = Rectangle(Point(960-phealth*3,990),Point(960+phealth*3,1020));phbarr.setFill('red');phbarr.setWidth(0);phbarr.draw(win)
     phbar = Rectangle(Point(960-phealth*3,990),Point(960+phealth*3,1020));phbar.setFill('green');phbar.setWidth(0);phbar.draw(win)
+    icon = Image(Point(100,800),('resources/'+str(win_height)+'/shotgun_icon.gif'));icon.draw(win)
     try:
         pimg.draw(win)
     except:
@@ -544,17 +543,16 @@ def main(ww,hh,sin):
         blocks[i].draw(win)
     ti = time()
     right = False;moving = False;up = True;falling = True;vert = False;but = False;yay=False;reload = False
-    g = 0.5;f = 0.95;a=2;x = 0;y=0;mx=0;my=0;bult = [];tb = 0;nxt = 0;xx=0;yy=0
+    g = 0.25;f = 0.95;a=2;x = 0;y=0;mx=0;my=0;bult = [];tb = 0;nxt = 0;xx=0;yy=0
     mobtime = 10;mob = [];score = 0;drop = []
     rnd = 1;spawning = True;toth = 0;bigrndcont = 0;bigrnd = False
     pinvul = False;pinvulcont = 0;pinvulccont = 0
-    crate_tot += 1
     #starter gun
     magmax = 10
     mag = magmax
     rltg = 20
-    velo = 20
-    rltb = 5
+    velo = 10
+    rltb = 12
     acc = 100
     recoil = -70
     bhealth = 10
@@ -592,7 +590,7 @@ def main(ww,hh,sin):
             else:
                 x -= a
         if falling and vert:
-            y = 17
+            y = 11
         elif not vert and falling:
             y -= g
         if not moving:
@@ -610,7 +608,7 @@ def main(ww,hh,sin):
         #invul effects
         if pinvul:
             pinvulcont -= 1
-            pinvulccont += 1
+            #pinvulccont += 1
             #if pinvulccont == 20:
                 #player.setFill('Red')
                 #pinvulccont == 0
@@ -675,10 +673,12 @@ def main(ww,hh,sin):
             if score < 10:
                 hhh = 10
             else:
-                hhh = random.randint(10,score*3)
-            if random.randint(0,5) == 5:
+                hhh = random.randint(10,max(score*3,100))
+            if random.randint(0,5) == 5 and score > 75:
+                ttt = 'yellow'
+            elif random.randint(0,5) == 5 and score > 50:
                 ttt = 'red'
-            elif random.randint(0,5) == 5:
+            elif random.randint(0,5) == 5 and score > 25:
                 ttt = 'blue'
             else:
                 ttt = 'green'
@@ -736,15 +736,21 @@ def main(ww,hh,sin):
         #fudging it
         if py < 10:
             player.move(0,10)
+            if selected_skin == 4:
+                pimg.move(0,10)
             falling = False
         #======End Code======#
-        if time() - ti < 0.016:
+        if time() - ti < 0.008:
             try:
-                sleep(0.016-(time()-ti))
+                sleep(0.008-(time()-ti))
             except:
                 print('lol')
-        fps.setText(str(round(1/(time()-ti),3)))
+        try:
+            fps.setText(str(round(1/(time()-ti),3)))
+        except:
+            fps.setText('inifnity!!!')
         ti = time()
+        win.update()
         
 def title(ww,hh,full,start):
     global win, high_score, crate_tot, selected_skin
@@ -755,7 +761,7 @@ def title(ww,hh,full,start):
     selected_skin = eval(savefiler.readline())
     savefiler.close()
     if start == True:
-        win = GraphWin('Game3',ww,hh,fullscreen=full)
+        win = GraphWin('Game3',ww,hh,fullscreen=full,autoflush=False)
         win.setCoords(0,0,1920,1080)
     l1 = Text(Point(960,800),'Game3')
     l1.setFace('helvetica');l1.setSize(35);l1.draw(win)
@@ -763,16 +769,19 @@ def title(ww,hh,full,start):
     ct.setFace('helvetica');ct.draw(win)
     hs = Text(Point(960,100),'High Score: '+high_score)
     hs.setFace('helvetica');hs.draw(win)
+    win.update()
     c = buttons.buttonChoice3(20,280,1900,600,'Play','Quit','Shop',win,True)
     
     if c == 1:
         win.clear()
+        win.update()
         if start:
             return win,'game'
         else:
             return 'game'
     elif c==3:
         win.clear()
+        win.update()
         if start:
             return win,'shop'
         else:
@@ -787,14 +796,14 @@ def cont(screen=None):
         if scr == 'game':
             main(ww,hh,win)
         elif scr == 'shop':
-            shop.shop(win)
+            shop.shop(win,1)
 
 ww,hh,full=setup.setup()
 win,scr = title(ww,hh,full,True)
 if scr == 'game':
     main(ww,hh,win)
 elif scr == 'shop':
-    shop.shop(win)
+    shop.shop(win,1)
 cont(screen=scr)
 
 
